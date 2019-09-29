@@ -1,0 +1,48 @@
+{
+  padding: 0;
+  margin: 0;
+  box-sizing:  border-box;
+}
+
+body{
+  height: 100vh;
+  background: coral;
+}
+
+.container{
+  width: 80%;
+  height: 80%;
+  margin-left: 10%;
+  background: black;
+  overflow: hidden;
+}
+
+.startButton{
+  text-align: center;
+  font-size: 2em;
+  color: white;
+  background-color: blue;
+}
+
+.myShip{
+  position: absolute;
+  left: 40%;
+  bottom: 20%;
+  background-color: white;
+  width: 100px;
+  height: 20px;
+}
+
+.fireme{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background-color: red;
+}
+
+.hide{
+  display: none;
+}

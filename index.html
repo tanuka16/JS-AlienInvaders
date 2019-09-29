@@ -1,0 +1,153 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <!-- <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Memory Game</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script src="index.js"></script> -->
+        <link rel="stylesheet" type="text/css" href="style.css">
+
+
+
+    </head>
+    <body>
+      <!-- when i use js i'll connect it to score and update value that is contained within the element with the class of score -->
+      <div class="topBar">Score: <span class="score">0</score></div>
+        <!-- game play container -->
+        <div class="container">
+          <div class="startButton">Start Game</div>
+          <!-- player's ship -->
+          <div class='myShip'></div>
+          <div class="fireme hide"></div>
+        </div>
+        <script>
+        // connecting everything to javascript
+        // start button obj: connecting it to the obj and making that connection with querySelector
+        // this allows to interact with the content thats on the page; interacte using document object model and connecting to that instance of that element
+        // btn_start will be representing the div startButton obj and the obj is the element with class of startButton
+        // include a prefex for class; class is '.' id its '#', for tag its the tag name on its own
+          const btn_start=document.querySelector(".startButton");
+          // make connection with ship; it's what the players are going to move around
+          const myShip = document.querySelector(".myShip");
+          const container = document.querySelector(".container");
+          const fireme = document.querySelector(".fireme");
+          // variable for score, to let the use know the score everytime it changes
+          const scoreOutput = document.querySelector(".score");
+
+
+          // function getBoundingClientRect() provides usefull info such as height, width, top, bottom, can be used to utilize while setting up the boundaries
+          // used function getBoundingClientRect() in order to get the main container
+          const containerDim = container.getBoundingClientRect();
+          // added an event listener (it's a 'click' called startGame) to the start button so i've an option to start the game whenever possible;
+          btn_start.addEventListener("click", startGame);
+          // setup a global object / player obj  to hold all the useful player information
+          // setup default variables within the player obj
+          let player = {
+            score :0,
+            speed : 5,
+            gameOver : true,
+            fire: false,
+            alienSpeed : 5
+          }
+
+          // setup another main object to control the key pressed
+          let keyV = {};
+          // using the document obj, adding an event listener to the entire document; listenering for event of "keyDown"
+          // and if any of the keys are pressed on the keyboard, it'll invoke the keydown function
+          document.addEventListener("keydown",function(e){
+            // console.log(e);         //if you press a key, the console shows which key got pressed; so for space the keycode is 32
+            // use the event obj and keyCode to retrieve the key information
+            let key = e.keyCode;
+            // console.log(key);           //only shows the keyCode
+            // indicator for which direction and also listen for the keyUp and set those value to false
+            if(key === 37){keyV.left=true;}
+            else if (key===39) {keyV.right = true;}
+            else if (key===38 || key===32) {
+              if(!player.fire){addShoot();}  //invoked when the keys get pressed; function addShoot
+
+            }
+              // player fire is set to true if any of the below keys were pressed
+              // console.log(keyV);
+          })
+
+          // listen for the keyUp and set those value to false
+          document.addEventListener("keyup",function(e){
+            let key = e.keyCode;
+            if(key === 37){
+              keyV.left=false;
+            }
+            else if (key===39) {
+              keyV.right = false;
+            }
+            // console.log(keyV);
+          })
+
+          function startGame(){
+            console.log('start game');
+            // within the global obj; this'll call and invoke a function as an animation frame
+            player.animFrame = requestAnimationFrame(update);
+            // repeat animation game
+            // this function needs to be selected using a global obj
+          }
+
+
+          // Setup firing object, also the position where its starting
+          function addShoot(){
+            player.fire = true;
+            fireme.classList.remove("hide");            //selectTheElement.UpdatingTheClassList.removingTheClassOfHide
+            //select an obj and create a value of 'xpro' in that object; myShip.offsetLeft -- gives the position of where the ship is locate on the screen;
+            fireme.xpos = (myShip.offsetLeft + (myShip.offsetWidth/2));          //myShip.offsetWidth/s --- starts half way into myShip, half way positioning where our x position is
+            // y position; default position of where the fire is starting -- myShip.offsetTop - 10;
+            fireme.ypos = myShip.offsetTop - 10;
+            // update style properties
+            fireme.style.left = fireme.xpos + "px";
+            fireme.style.top = fireme.ypos + "px";
+          }
+
+
+          // repeat fuction, which let the game play over and over again; this will the updates that we need within the the game play area.
+          // so effectively creating the annimation by running and constantly calling into the function
+          function update(){
+            // temporary value position ; it get the left position in a pixel value in a numeric value
+            let tempPos = myShip.offsetLeft;
+            // check to see if player fire is true, we can take can action according to that
+            if (player.fire) {
+              if (fireme.ypos > 0) {
+                fireme.ypos -= 15;
+                fireme.style.top = fireme.ypos + "px";
+              } else {
+                player.fire = false;
+                fireme.classList.add("hide");
+                fireme.ypos = containerDim.height + 100;
+              }
+
+
+            }
+
+
+
+            // can tempPos to update it; if key pressed left & see if the value of the left position is greater the container boundaries, subtract player speed  of it
+            if (keyV.left && tempPos > containerDim.left) {
+              tempPos -= player.speed;
+            }
+            // if key value is right then move it to the right by adding
+            if (keyV.right && (tempPos + myShip.offsetWidth) < containerDim.right) {
+              tempPos += player.speed;
+            }
+            // select the myShip obj dynamiclly update its style value, using tempPos & updating its pix location
+            myShip.style.left = tempPos + "px";
+            // console.log("player");
+            player.animFrame = requestAnimationFrame(update);       //constantly loop through update
+          }
+
+
+        </script>
+
+
+        <!-- <button class="myButton" onclick="sayHello()">Click Me</button> -->
+
+
+    </body>
