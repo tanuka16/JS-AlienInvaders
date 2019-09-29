@@ -86,11 +86,79 @@
           })
 
           function startGame(){
-            console.log('start game');
-            // within the global obj; this'll call and invoke a function as an animation frame
-            player.animFrame = requestAnimationFrame(update);
+            //  checking to see if player gameOver is true & if it is, start the game
+            if (player.gameOver) {
+              // set it to false so we can keep restarting until i want the user to restart
+              player.gameOver = false;
+              btn_start.style.display = 'none';
+              // make sure the alien speed is at 5
+              player.alignSpeed = 5
+              // pass in 5 aliens to setup
+              setupAliens(5);
+              console.log('start game');
+              // within the global obj; this'll call and invoke a function as an animation frame
+              player.animFrame = requestAnimationFrame(update);
+            }
             // repeat animation game
             // this function needs to be selected using a global obj
+          }
+
+          function setupAliens(num){
+            // make temporary width
+            let tempWidth = 50;
+            let lastCol = containerDim.width - tempWidth;
+            // setup row obj to position the alien
+            let row = {
+              // pass in x & y obj value; x -- take the last col value,
+              // use %100 to get a modules number & divide it by 2. Constantly adjest the values as i add more values
+              // x : (lastCol % 100)/2,
+              x: containerDim.left,
+              // tafjest y value as i loop through and create more aliens
+              y : 50
+            }
+            // make temporary width
+            // let tempWidth = 100; -- move it up
+            for (let x=0; x<num; x++){
+              if (row.x > (lastCol - tempWidth)) {
+                row.y += 70;
+                // row.x = (lastCol % 100)/2          -- update the reset value
+                row.x = containerDim.left
+              }
+              //  check to see if update in the position is possible before making the aliens
+              alienMaker(row, tempWidth);
+              row.x += tempWidth + 20;
+            }
+          }
+
+
+          function alienMaker(row, tempWidth){
+            console.log(row);
+            // creatingof div
+            let div = document.createElement("div");
+            // adding class to the div; content
+            div.classList.add("alien")
+            // set style property; set the px, it wont set numeric value otherwise.
+            div.style.width= tempWidth+"px";
+            div.xpos = Math.floor(row.x);
+            div.ypos = Math.floor(row.y);
+            // set its left position
+            div.style.left = div.xpos+"px";
+            div.style.top = div.ypos+"px";
+            // direction moving, wheneve the aliens get to the end, i want go the other way
+            // accomplish that using the variable 1 variable, multiplying it by -1, the 1 will turn into nagetive and move it other way
+            // it happens everytime it hits (left and right) the end. when it hits the other way, it moves the oposite way turn the -1 back to 1
+            div.directionMove=1;
+            // append a Child to container obj; the Child is the div that i just created
+            container.appendChild(div)
+
+
+
+
+
+
+
+            console.log(div);
+
           }
 
 
