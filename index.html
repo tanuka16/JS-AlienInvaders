@@ -15,7 +15,10 @@
     </head>
     <body>
       <!-- when i use js i'll connect it to score and update value that is contained within the element with the class of score -->
-      <div class="topBar">Score: <span class="score">0</score></div>
+      <div class="topBar">
+        Score: <span class="score">0</score>
+        <span class="message"></span>
+        </div>
         <!-- game play container -->
         <div class="container">
           <div class="startButton">Start Game</div>
@@ -36,11 +39,10 @@
           const fireme = document.querySelector(".fireme");
           // variable for score, to let the use know the score everytime it changes
           const scoreOutput = document.querySelector(".score");
-
-
           // function getBoundingClientRect() provides usefull info such as height, width, top, bottom, can be used to utilize while setting up the boundaries
           // used function getBoundingClientRect() in order to get the main container
           const containerDim = container.getBoundingClientRect();
+          const message = document.querySelector(".message");
           // added an event listener (it's a 'click' called startGame) to the start button so i've an option to start the game whenever possible;
           btn_start.addEventListener("click", startGame);
           // setup a global object / player obj  to hold all the useful player information
@@ -85,17 +87,37 @@
             // console.log(keyV);
           })
 
+          function gameOver(){
+            btn_start.style.display = 'block';
+            btn_start.innerHTML = "Restart New Game";
+            player.fire = true;
+            fireme.classList.add("hide") //updating the classList and adding in hide
+          }
+
+          function clearAliens(){
+            let tempAliens = document.querySelectorAll(".alien");
+            // loop throughwhen we start the game, it'll clear the allien whenit hits the end
+              for(let x=0; x < tempAliens.length; x++){
+                //as i loop through the tempAliens the index value x, selecting the element; taking the parentNode, moving up 1 level, in this case its the container
+                tempAliens[x].parentNode.removeChild(tempAliens[x]);
+              }
+          }
+
           function startGame(){
             //  checking to see if player gameOver is true & if it is, start the game
             if (player.gameOver) {
+              clearAliens();                 //start the game 1st thing to do is run clearAliens
               // set it to false so we can keep restarting until i want the user to restart
               player.gameOver = false;
               btn_start.style.display = 'none';
               // make sure the alien speed is at 5
-              player.alignSpeed = 5
+              player.alignSpeed = 5;
+              player.score=0;
+              player.fire = false;
+              scoreOutput.textContent=player.score;             //update and output the score content
               // pass in 5 aliens to setup
-              setupAliens(5);
-              console.log('start game');
+              setupAliens(20);
+              messageOutput('Start Game');
               // within the global obj; this'll call and invoke a function as an animation frame
               player.animFrame = requestAnimationFrame(update);
             }
@@ -103,16 +125,17 @@
             // this function needs to be selected using a global obj
           }
 
+
           function setupAliens(num){
             // make temporary width
-            let tempWidth = 70;
+            let tempWidth = 40;
             let lastCol = containerDim.width - tempWidth;
             // setup row obj to position the alien
             let row = {
               // pass in x & y obj value; x -- take the last col value,
               // use %100 to get a modules number & divide it by 2. Constantly adjest the values as i add more values
               // x : (lastCol % 100)/2,
-              x: containerDim.left,
+              x: containerDim.left+50,
               // tafjest y value as i loop through and create more aliens
               y : 50
             }
@@ -122,11 +145,11 @@
               if (row.x > (lastCol - tempWidth)) {
                 row.y += 70;
                 // row.x = (lastCol % 100)/2          -- update the reset value
-                row.x = containerDim.left
+                row.x = containerDim.left+50
               }
               //  check to see if update in the position is possible before making the aliens
               alienMaker(row, tempWidth);
-              row.x += tempWidth + 20;
+              row.x += tempWidth + 25;
             }
           }
 // create a function for random color, it'll give random color
@@ -139,7 +162,10 @@
           }
 
           function alienMaker(row, tempWidth){
-            console.log(row);
+            //makes it more responsive for smaller screen
+            if(row.y > (containerDim.height - 200)){
+              return;
+            }
             // creatingof div
             let div = document.createElement("div");
             // adding class to the div; content
@@ -149,12 +175,12 @@
             let eye1 = document.createElement("span");
             // take the classList and add an eye to it
             eye1.classList.add("eye");
-            eye1.style.left ="10px";
+            eye1.style.left ="5px";
             div.appendChild(eye1);
             // we need another eye, so each alien should need 2 eyes.
             let eye2 = document.createElement("span");
             eye2.classList.add("eye");
-            eye2.style.right ="10px";
+            eye2.style.right ="5px";
             div.appendChild(eye2);
 
             // Style for the mouth
@@ -178,14 +204,6 @@
             // append a Child to container obj; the Child is the div that i just created
             container.appendChild(div)
 
-
-
-
-
-
-
-            console.log(div);
-
           }
 
 
@@ -201,11 +219,74 @@
             fireme.style.left = fireme.xpos + "px";
             fireme.style.top = fireme.ypos + "px";
           }
+          // cheking for collition; rect === rectangle
+          function isCollide(a,b){
+            let aRect = a.getBoundingClientRect();
+            let bRect = b.getBoundingClientRect();
+            // check to see if there's no overlap
+            return !(
+              (aRect.bottom < bRect.top) ||
+              (aRect.top > bRect.bottom) ||                   //check for overlaps
+              (aRect.right < bRect.left) ||
+              (aRect.left > bRect.right)
+            )
+          }
 
 
+          function messageOutput(mes){          //pass in value
+            message.innerHTML = mes;             //use that within the message obj and update the innerHTML
+          }
+
+          // annimation function
           // repeat fuction, which let the game play over and over again; this will the updates that we need within the the game play area.
           // so effectively creating the annimation by running and constantly calling into the function
           function update(){
+            if (!player.gameOver) {
+            // select all the elements on the page that have a class of alien
+            let tempAliens = document.querySelectorAll(".alien");
+            if(tempAliens.length == 0){
+              player.gameOver = true;
+              messageOutput("You Won");
+              gameOver();
+            }
+            // loop through the node list
+            // x=tempAliens.length-1 === because it's moving backward; x > -1 === checking if x is larger than 1; x-- === subtracting 1 so we can break through the loop
+            for(let x=tempAliens.length-1; x > -1; x--){
+              // setup a variable called el and this'll be the tempAliens selecting tempAliens[item] from the arr list
+              let el = tempAliens[x];                     //selected the alien element
+              // check for crossover bt the alien and fireme elements; pass in 2 objects; fireme element is the only1 that got the projuctile
+              if (isCollide(el,fireme)) {                     //check for fireme position and its top, left, and corner position
+                messageOutput("HIT");
+                player.alienSpeed++;                      // increment the speed each time the user hits an alien
+                player.score++;                           //update score by 1
+                scoreOutput.textContent=player.score;
+                player.fire=false;
+                fireme.classList.add("hide");               // hide the element(alien) that gets hit
+                el.parentNode.removeChild(el);             // remove a child from the parentNode and remove the child matching those element values; this's the element that trigger the collision
+                fireme.ypos = containerDim.height + 100;    //update the fire value
+
+              }
+              // check to see if the alien move off of ofset of the container dim width position & check the offsetwidth of the alien; also or el's x position is less then 0===containerDim.left;
+              if(el.xpos > (containerDim.width - el.offsetWidth) ||
+                el.xpos < containerDim.left){
+                // if that's true change direction by multiplying it with -1 & -1 *1 = 1 -1* -1 = 1; flip between 1 & -1
+                el.directionMove *= -1;                         // direction moving position
+                el.ypos += 40;                                   // want the alien to move down, incremented by 40
+                // checking to see if the alien hits the bottom; if yes GAME OVER
+                if (el.ypos > myShip.offsetTop - 50){                         // looking for the value of myShip and get a value of offsetTop position (-20) so if it hits lil above the ship, it'll be grame over
+                  messageOutput("Game Over");
+                  player.gameOver=true;
+                  gameOver();                       //invoke game over function
+                }
+              }
+              // gives the ability to move the aliens ; same as the myShip
+              el.xpos += (player.alienSpeed * el.directionMove);            //give the direction if moveing left or right
+              el.style.left = el.xpos+"px";
+              el.style.top = el.ypos+"px";
+            }
+
+
+
             // temporary value position ; it get the left position in a pixel value in a numeric value
             let tempPos = myShip.offsetLeft;
             // check to see if player fire is true, we can take can action according to that
@@ -218,12 +299,7 @@
                 fireme.classList.add("hide");
                 fireme.ypos = containerDim.height + 100;
               }
-
-
             }
-
-
-
             // can tempPos to update it; if key pressed left & see if the value of the left position is greater the container boundaries, subtract player speed  of it
             if (keyV.left && tempPos > containerDim.left) {
               tempPos -= player.speed;
@@ -234,8 +310,11 @@
             }
             // select the myShip obj dynamiclly update its style value, using tempPos & updating its pix location
             myShip.style.left = tempPos + "px";
+
+              player.animFrame = requestAnimationFrame(update);       //constantly loop through update
+
+            }
             // console.log("player");
-            player.animFrame = requestAnimationFrame(update);       //constantly loop through update
           }
 
 

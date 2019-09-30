@@ -86,3 +86,12 @@ body{
   border:4px dotted white;
   background-color: black;
 }
+
+.topBar{
+  height: 50px;
+  width: 100%;
+  background-color: black;
+  color: white;
+  text-align: center;
+  font-size: 2em;
+}
