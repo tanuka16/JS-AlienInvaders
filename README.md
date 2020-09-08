@@ -1,4 +1,4 @@
-# JS-AlienInvaders
+# Alien Invaders
 
 
 ## Tech stack
